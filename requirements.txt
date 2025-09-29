@@ -1,0 +1,6 @@
+scipy
+tqdm
+torch
+numpy==2.3.3
+pandas==2.3.2
+seqpro==0.7.1
