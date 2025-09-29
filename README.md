@@ -30,7 +30,7 @@ pip install -r requirements.txt
 ##  Training  model
 You can train the UTR-CODE  with the simple example.
 ```shell
-python train.py
+python train_encryption.py
 ```
 
 
