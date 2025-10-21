@@ -13,6 +13,10 @@ Translation is a fundamental biological process that directly influences protein
 
 
 ![image](static/pipeline.png)
+
+## ✨  Online website
+We provide a [web server](https://huggingface.co/spaces/xinHesysu/UTR-CODE) for predicting and optimizing sequences.
+
 ## 🔰 Installation
 
 ### 1、 Install dependencies
