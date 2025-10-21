@@ -42,6 +42,7 @@ python train.py
 
 ## ✨ Applications
 
+
 ### 1. Predicted TE from single mRNA sequence
 ```shell
 cd script
