@@ -19,6 +19,79 @@ class Transpose(nn.Module):
 -------------------------------------------
 """
 
+class Linear2D(nn.Module):
+    def __init__(self, channel_dim, input_dim, output_dim, inter_dim, only_A=False, flatten_dim=None, input_length=None, add_bias=False, reduction=None, dropout_rate=None):
+        super(Linear2D, self).__init__()
+        self.inter_dim = inter_dim
+        self.flatten_dim = flatten_dim
+        self.only_A = only_A
+        self.reduction = reduction
+        self.dropout_rate = dropout_rate
+        if flatten_dim is not None:
+            self.flatten_proj = nn.Parameter(torch.randn(channel_dim, input_dim, flatten_dim))
+            self.transA = nn.Parameter(torch.randn(channel_dim, flatten_dim * input_length, inter_dim))
+            self.transB = nn.Parameter(torch.randn(channel_dim, inter_dim, output_dim))
+            for param in [self.transA, self.transB, self.flatten_proj]:
+                nn.init.xavier_uniform_(param)
+        elif only_A:
+            self.transA = nn.Parameter(torch.randn(channel_dim, input_dim, output_dim))
+            nn.init.xavier_uniform_(self.transA)
+        else:
+            self.transA = nn.Parameter(torch.randn(channel_dim, input_dim, inter_dim))
+            self.transB = nn.Parameter(torch.randn(channel_dim, inter_dim, output_dim))
+            for param in [self.transA, self.transB]:
+                nn.init.xavier_uniform_(param)
+        self.add_bias = add_bias
+        if add_bias:
+            self.bias = nn.Parameter(torch.zeros(channel_dim, output_dim))
+        if dropout_rate is not None:
+            self.factor_drop = nn.Dropout1d(dropout_rate)
+
+        if reduction is None:
+            self.reduction_fun = lambda x: x  # 恒等函数
+        elif reduction == 'mean':
+            self.reduction_fun = lambda x: torch.mean(x, 0)  # 对第 0 维求均值
+        elif reduction == 'max':
+            self.reduction_fun = lambda x: torch.max(x, 0)[0]  # 对第 0 维求均值
+        elif reduction == 'mlp':
+            self.channel_factor = nn.Parameter(torch.randn(output_dim, channel_dim, 1))
+            nn.init.xavier_uniform_(self.channel_factor)
+
+    def forward(self, A, is_dropout=True):
+        dimA = A.dim()
+        if is_dropout and self.dropout_rate is not None:
+            transA = self.factor_drop(self.transA)
+            if self.flatten_dim is not None:
+                flatten_proj = self.factor_drop(self.flatten_proj)
+        else:
+            transA = self.transA
+            if self.flatten_dim is not None:
+                flatten_proj = self.flatten_proj
+        if self.flatten_dim is not None:
+            output = torch.einsum('bld,cdr->cblr', A, flatten_proj)
+            output = torch.flatten(output, start_dim=2)
+            output = torch.einsum('cbd,cdr->cbr', output, transA)
+            output = torch.einsum('cbr,cro->cbo', output, self.transB)
+        elif self.only_A:
+            output = torch.einsum('bd,cdr->cbr', A, transA)
+        elif dimA == 3:
+            output = torch.einsum('bld,cdr->cblr', A, transA)
+            output = torch.einsum('cblr,cro->cblo', output, self.transB)
+        elif dimA == 2:
+            output = torch.einsum('bd,cdr->cbr', A, transA)
+            output = torch.einsum('cbr,cro->cbo', output, self.transB)
+        if self.add_bias:
+            bias = self.bias
+            if dimA == 2 or self.flatten_dim is not None or self.only_A:
+                bias = bias.unsqueeze(1)
+            else:
+                bias = bias.unsqueeze(1).unsqueeze(1)
+            output = output + bias
+        if self.reduction == 'mlp':
+            output = torch.einsum('cbd,dcr->bdr', output, self.channel_factor)
+            return output.squeeze(-1)
+        else:
+            return self.reduction_fun(output)
 
 class CNN_Encoder_Model(nn.Module):
     r"""
@@ -86,12 +159,16 @@ class CNN_Encoder_Model(nn.Module):
                 ),
                 Transpose(),
                 nn.Dropout1d(float(p["dropout3"])),
-                nn.Flatten(),
+                #nn.Flatten(),
             )
         utr_flatten_size = self.conv_shape("reg")
 
         self.utr_mlp = nn.Sequential(
-            nn.Linear(in_features=utr_flatten_size, out_features=int(p["dense4"])),
+            #nn.Linear(in_features=utr_flatten_size, out_features=int(p["dense4"])),
+            Linear2D(channel_dim=8, input_dim=utr_flatten_size[2],
+                     input_length=utr_flatten_size[1], output_dim=int(p['dense4']),
+                     inter_dim=4, dropout_rate=0.3, reduction='mlp',
+                     flatten_dim=16),
             nn.ReLU(),
             nn.BatchNorm1d(int(p["dense4"])),
             nn.Dropout(float(p["dropout4"])),
@@ -103,7 +180,11 @@ class CNN_Encoder_Model(nn.Module):
         cds_flatten_size = self.conv_shape("cds")
 
         self.RPF_fc = nn.Sequential(
-            nn.Linear(in_features=cds_flatten_size, out_features=int(p["dense5"])),
+            #nn.Linear(in_features=cds_flatten_size, out_features=int(p["dense5"])),
+            Linear2D(channel_dim=8, input_dim=cds_flatten_size[2],
+                     input_length=cds_flatten_size[1], output_dim=int(p['dense5']),
+                     inter_dim=4, dropout_rate=0.3, reduction='mlp',
+                     flatten_dim=16),
             nn.ReLU(),
             nn.BatchNorm1d(int(p["dense5"])),
             nn.Dropout(float(p["dropout5"])),
@@ -158,7 +239,7 @@ class CNN_Encoder_Model(nn.Module):
             x_input_1, torch.zeros([1, 256, 1, self.motif_depth]), seqType
         )
         x_output = self.encoderDict[seqType](x_output)
-        flatten_shape = int(np.prod(x_output.size()))
+        flatten_shape = x_output.size()#int(np.prod(x_output.size()))
         return flatten_shape
 
     def forward(self, regSequence, cdsSequence, transArray, rnaCount):
