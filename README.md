@@ -36,12 +36,12 @@ Download and decompress the [training raw data](https://doi.org/10.6084/m9.figsh
 ##  Training  model
 You can train the UTR-CODE  with the simple example.
 ```shell
-python train_encryption.py
+python train.py
 ```
 
 
 ## ✨ Applications
-we provide web server 
+
 ### 1. Predicted TE from single mRNA sequence
 ```shell
 cd script
