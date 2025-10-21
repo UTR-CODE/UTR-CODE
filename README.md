@@ -15,13 +15,15 @@ Translation is a fundamental biological process that directly influences protein
 ![image](static/pipeline.png)
 ## 🔰 Installation
 
-Download the [training raw data](https://doi.org/10.6084/m9.figshare.30153784.v1) from figshare 
+### 1、 Install dependencies
 ```shell
 git clone https://github.com/UTR-CODE/UTR-CODE
 cd UTR-CODE
 pip install -r requirements.txt
 
 ```
+### 2、Download training raw data
+Download and decompress the [training raw data](https://doi.org/10.6084/m9.figshare.30153784.v1) from figshare 
 
 
 # 📝 Usage
