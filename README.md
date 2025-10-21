@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 ```
 ### 2、Download training raw data
-Download and decompress the [training raw data](https://doi.org/10.6084/m9.figshare.30153784.v1) from figshare 
+Download and decompress the [training raw data](https://doi.org/10.6084/m9.figshare.30153784.v2) from figshare 
 
 
 # 📝 Usage
