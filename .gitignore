@@ -2,4 +2,3 @@ epochs/
 .idea
 *pycache*
 training_rawdata
-train.py
