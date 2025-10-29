@@ -9,9 +9,7 @@
 
 ## 📣 Introduction
 ___
-Translation is a fundamental biological process that directly influences protein abundance, yet the mechanisms by which mRNA sequences determine translational regulation remain incompletely understood, especially the 5’ untranslated regions (5' UTRs) play an essential role in translation regulation. Here, we generated 1,586 paired RNA-seq and Ribo-seq datasets from six species and developed a deep learning model UTR-CODE, to predict mRNA translation efficiency (TE). UTR-CODE demonstrates strong cross-species generalizability and outperforms existing tools across diverse platforms. 
-
-
+The 5’ untranslated region (5’ UTR) is a primary driver of protein expression, yet the complexity of its regulatory code has hindered our ability to decode translation regulation, understand variant effects and engineer effective mRNAs. To address this, we developed UTR-CODE, a deep learning model trained on 1,586 samples with paired RNA-seq and Ribo-seq datasets across six species. UTR-CODE demonstrates strong cross-species generalizability and outperforms existing tools across diverse species and platforms.
 
 ![img.png](static/pipeline.png)
 
