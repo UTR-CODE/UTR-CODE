@@ -15,8 +15,9 @@ Translation is a fundamental biological process that directly influences protein
 
 ![img.png](static/pipeline.png)
 
-## ✨  Online website
+# ✨  Online website
 We provide a [web server](http://www.ai4bio.org/UTR-CODE/) for predicting and optimizing sequences.
+
 
 ## 🔰 Installation
 
