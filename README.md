@@ -34,7 +34,6 @@ Download and decompress the [training raw data](https://doi.org/10.6084/m9.figsh
 
 # 📝 Usage
 
-
 ##  Training  model
 You can train the UTR-CODE  with the simple example.
 ```shell
