@@ -20,6 +20,7 @@ We provide a [web server](http://www.ai4bio.org/UTR-CODE/) for predicting and op
 ## 🔰 Installation
 
 ### 1、 Install dependencies
+We tested the UTR-CODE on Python 3.10.
 ```shell
 git clone https://github.com/UTR-CODE/UTR-CODE
 cd UTR-CODE
