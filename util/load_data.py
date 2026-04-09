@@ -31,7 +31,8 @@ class UTRDataset_combinedenv(Dataset):
         else:
             data = data[data["gene_id"].isin(valid_gene)]
 
-        self.data = data.query("RNA_RPKM > 0.1 ")
+
+        self.data = data.query("RNA_TPM > 0.1 ")
         self.data = self.data.reset_index(drop=True)
         folds = 5
         #if species == "yeast":
@@ -41,8 +42,8 @@ class UTRDataset_combinedenv(Dataset):
         #elif species == "C.elegans":
          #   folds = 3.5
         
-        self.data["RNA_RPKM"] = np.log1p(self.data["RNA_RPKM"] * folds)
-        self.data["RPF_RPKM"] = np.log1p(self.data["RPF_RPKM"] * folds)
+        self.data["RNA_TPM"] = np.log1p(self.data["RNA_TPM"] * folds)
+        self.data["RPF_TPM"] = np.log1p(self.data["RPF_RPM"] * folds)
 
         self.seq_ohe = np.load(os.path.join(dataset_dir, f"{species}_utr_ohe.npz"))["ohe"]
 
